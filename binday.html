@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BIN DAY</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    .week-section {
+      margin-bottom: 40px;
+    }
+    .week-title {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .color-block {
+      width: 150px;
+      height: 150px;
+      display: inline-block;
+      margin: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      color: white;
+      font-weight: bold;
+      line-height: 150px;
+      text-transform: uppercase;
+    }
+    .brown { background-color: #8B4513; }
+    .grey  { background-color: #808080; }
+    .blue  { background-color: #1E90FF; }
+    .green { background-color: #228B22; }
+  </style>
+</head>
+<body>
+  <h1>BIN DAY</h1>
+
+  <div id="currentWeek" class="week-section"></div>
+  <div id="nextWeek" class="week-section"></div>
+
+  <script>
+    function getISOWeekNumber(date) {
+      const target = new Date(date.valueOf());
+      const dayNr = (date.getDay() + 6) % 7;
+      target.setDate(target.getDate() - dayNr + 3);
+      const firstThursday = new Date(target.getFullYear(), 0, 4);
+      const diff = target - firstThursday;
+      return 1 + Math.round(diff / (7 * 24 * 60 * 60 * 1000));
+    }
+
+    function getWeekCommencing(date) {
+      const day = date.getDay();
+      const diffToMonday = (day === 0 ? -6 : 1) - day;
+      const monday = new Date(date);
+      monday.setDate(date.getDate() + diffToMonday);
+      return monday;
+    }
+
+    function formatDate(date) {
+      return date.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+
+    function renderWeek(sectionId, date, label) {
+      const weekNumber = getISOWeekNumber(date);
+      const isEven = weekNumber % 2 === 0;
+      const monday = getWeekCommencing(date);
+
+      const container = document.getElementById(sectionId);
+      container.innerHTML = `
+        <div class="week-title">${label}: Week ${weekNumber} (Commencing ${formatDate(monday)})</div>
+      `;
+
+      const colors = isEven ? ['brown'] : ['grey', 'blue', 'green'];
+      colors.forEach(color => {
+        const block = document.createElement('div');
+        block.className = `color-block ${color}`;
+        block.textContent = color;
+        container.appendChild(block);
+      });
+    }
+
+    const today = new Date();
+    const nextWeekDate = new Date(today);
+    nextWeekDate.setDate(today.getDate() + 7);
+
+    renderWeek('currentWeek', today, 'This Week');
+    renderWeek('nextWeek', nextWeekDate, 'Next Week');
+  </script>
+</body>
+</html>
